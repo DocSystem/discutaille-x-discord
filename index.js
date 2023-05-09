@@ -1,5 +1,6 @@
 const { Client, IntentsBitField, GatewayIntentBits, Events } = require('discord.js');
 const { WebSocket, RawData } = require('ws');
+const https = require("https");
 
 if (process.env.TOKEN === undefined) {
     console.error('No token provided');
@@ -20,6 +21,22 @@ let sentMessages = [];
 websocket.on('open', () => {
     console.log('Connected to Discutaille websocket');
 });
+
+async function getSplashText() {
+    return new Promise((resolve, reject) => {
+        https.get(" https://discutaille.center/api/splash", (res) => {
+            let data = "";
+            res.on("data", (chunk) => {
+                data += chunk;
+            });
+            res.on("end", () => {
+                resolve(data);
+            });
+        }).on("error", (err) => {
+            reject(err);
+        });
+    });
+}
 
 function decodeWsJson(data) {
     data = data.toString();
@@ -92,7 +109,10 @@ client.on(Events.MessageCreate, (message) => {
 });
 
 client.once(Events.ClientReady, () => {
-    console.log(`Logged in to Discord as ${client.user.tag}!`)
+    console.log(`Logged in to Discord as ${client.user.tag}!`);
+    getSplashText().then((text) => {
+        client.user.setActivity(text, { type: 'PLAYING', url: 'https://discutaille.center', name: text });
+    });
 })
 
 client.login(process.env.TOKEN);
