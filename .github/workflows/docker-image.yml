@@ -88,3 +88,10 @@ jobs:
         # This step uses the identity token to provision an ephemeral certificate
         # against the sigstore community Fulcio instance.
         run: echo "${{ steps.meta.outputs.tags }}" | xargs -I {} cosign sign {}@${{ steps.build-and-push.outputs.digest }}
+
+      # Sends a HTTP POST request to Portainer Webhook to update the stack
+      - name: Send POST request to Portainer
+        uses: peter-evans/send-message-action@v1
+        with:
+          url: ${{ secrets.PORTAINER_WEBHOOK_URL }}
+          method: POST
