@@ -27,9 +27,7 @@ function decodeWsJson(data) {
         .replace(/&lt;/g, '<')
         .replace(/&gt;/g, '>')
         .replace(/&quot;/g, '\\"')
-        .replace(/&#039;/g, "'")
-        .replace(/\\x00/g, '')
-        .trim();
+        .replace(/&#039;/g, "'");
     return JSON.parse(data);
 }
 
@@ -74,11 +72,11 @@ websocket.on('message', async (s) => {
         }
         if (data.message.length < 2000) {
             await wh.send({
-                content: data.message
+                content: data.message.trim()
             });
         }
         else {
-            const messages = data.message.match(/.{1,2000}/g);
+            const messages = data.message.trim().match(/.{1,2000}/g);
             for (const message of messages) {
                 await wh.send({
                     content: message
