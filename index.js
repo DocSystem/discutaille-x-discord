@@ -101,6 +101,9 @@ websocket.on('message', async (s) => {
             }
         }
     }
+    else if (data.type === "splashupdate") {
+        client.user.setActivity(data.splash);
+    }
 })
 
 client.on(Events.MessageCreate, (message) => {
@@ -111,7 +114,7 @@ client.on(Events.MessageCreate, (message) => {
 client.once(Events.ClientReady, () => {
     console.log(`Logged in to Discord as ${client.user.tag}!`);
     getSplashText().then((text) => {
-        client.user.setActivity(text, { type: 'PLAYING', url: 'https://discutaille.center', name: text });
+        client.user.setActivity(text);
     });
 })
 
