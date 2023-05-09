@@ -28,7 +28,8 @@ function decodeWsJson(data) {
         .replace(/&gt;/g, '>')
         .replace(/&quot;/g, '\\"')
         .replace(/&#039;/g, "'")
-        .replace(/\x00/g, '');
+        .replace(/\\x00/g, '')
+        .trim();
     return JSON.parse(data);
 }
 
