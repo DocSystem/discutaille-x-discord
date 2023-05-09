@@ -24,7 +24,7 @@ websocket.on('open', () => {
 
 async function getSplashText() {
     return new Promise((resolve, reject) => {
-        https.get(" https://discutaille.center/api/splash", (res) => {
+        https.get("https://discutaille.center/api/splash", (res) => {
             let data = "";
             res.on("data", (chunk) => {
                 data += chunk;
