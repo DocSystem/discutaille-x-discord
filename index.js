@@ -1,6 +1,7 @@
 const { Client, IntentsBitField, GatewayIntentBits, Events } = require('discord.js');
 const { WebSocket, RawData } = require('ws');
 const https = require("https");
+const ppgen = require("./ppgen");
 
 if (process.env.TOKEN === undefined) {
     console.error('No token provided');
@@ -127,3 +128,6 @@ client.once(Events.ClientReady, () => {
 })
 
 client.login(process.env.TOKEN);
+ppgen.app.listen(80, () => {
+    console.log("PPGen listening on port 80");
+})
