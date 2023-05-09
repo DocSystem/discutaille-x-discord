@@ -5,6 +5,8 @@ services:
     container_name: discutaille-discord-bot
     image: ghcr.io/docsystem/discutaille-x-discord:main
     restart: unless-stopped
+    networks:
+      - reverseproxy
     environment:
       TOKEN: ${TOKEN}
       HOSTNAME: "https://discutaille-cdn.docsystem.xyz"
@@ -12,3 +14,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.discutaille-discord-bot.rule=Host(`discutaille-cdn.docsystem.xyz`)"
       - "traefik.http.services.discutaille-discord-bot.loadbalancer.server.port=80"
+
+networks:
+  reverseproxy:
+    external: true
