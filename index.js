@@ -78,26 +78,34 @@ websocket.on('message', async (s) => {
         const pseudo = data.pseudo;
         const channel = await client.channels.cache.get('1105501399074230377');
         const webhooks = await channel.fetchWebhooks();
-        let wh = webhooks.find((w) => w.name === pseudo);
+        let wh = webhooks.find((w) => w.name === "Discutaille");
         // create webhook if not exists
         if (!wh) {
             const channel = await client.channels.cache.get('1105501399074230377');
             wh = await channel.createWebhook({
-                name: pseudo,
+                name: "Discutaille",
                 avatar: 'https://discutaille.center/assets/skul.png'
             });
         }
-        if (data.message.length < 2000) {
-            await wh.send({
-                content: data.message.trim()
-            });
-        }
-        else {
-            const messages = data.message.trim().match(/.{1,2000}/g);
-            for (const message of messages) {
+        if (data.message.trim().length > 0) {
+            if (data.message.length < 2000) {
                 await wh.send({
-                    content: message
+                    content: data.message.trim(),
+                    username: pseudo,
+                    avatarURL: process.env.HOSTNAME + "/avatar/" + pseudo
                 });
+            }
+            else {
+                const messages = data.message.trim().match(/.{1,2000}/g);
+                for (const message of messages) {
+                    if (message.length > 0) {
+                        await wh.send({
+                            content: message,
+                            username: pseudo,
+                            avatarURL: process.env.HOSTNAME + "/avatar/" + pseudo
+                        });
+                    }
+                }
             }
         }
     }
