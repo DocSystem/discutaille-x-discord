@@ -91,7 +91,7 @@ jobs:
 
       # Sends a HTTP POST request to Portainer Webhook to update the stack
       - name: Send POST request to Portainer
-        uses: peter-evans/send-message-action@v1
+        uses: fjogeleit/http-request-action@v1
         with:
           url: ${{ secrets.PORTAINER_WEBHOOK_URL }}
           method: POST
