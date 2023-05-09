@@ -42,7 +42,10 @@ app.get("/avatar/:pseudo", (req, res) => {
     const avatar = generateAvatar(pseudo);
     res.writeHead(200, {
         'Content-Type': 'image/png',
-        'Content-Length': avatar.length
+        'Content-Length': avatar.length,
+        'Cache-Control': 'public, max-age=31536000',
+        'Accept-Ranges': 'bytes',
+        'Access-Control-Allow-Origin': '*'
     })
     res.end(avatar);
 });
