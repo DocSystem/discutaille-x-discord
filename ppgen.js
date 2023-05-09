@@ -40,8 +40,11 @@ function generateAvatar(pseudo) {
 app.get("/avatar/:pseudo", (req, res) => {
     const pseudo = req.params.pseudo;
     const avatar = generateAvatar(pseudo);
-    res.contentType('image/png');
-    res.send(avatar);
+    res.writeHead(200, {
+        'Content-Type': 'image/png',
+        'Content-Length': avatar.length
+    })
+    res.end(avatar);
 });
 
 exports.generateAvatar = generateAvatar;
