@@ -1,0 +1,16 @@
+{
+  "name": "discutaille-x-discord",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ."
+  },
+  "keywords": [],
+  "author": "DocSystem & Onelots",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^14.11.0",
+    "ws": "^8.13.0"
+  }
+}
