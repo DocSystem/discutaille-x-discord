@@ -131,7 +131,7 @@ client.on(Events.MessageCreate, (message) => {
     });
     // replace emojis
     msg = msg.replace(/<a?:\w+:(\d+)>/g, match => {
-        return match.split(":")[1];
+        return ":" + match.split(":")[1] + ":";
     });
     sendShout(msg, message.author.username);
 });
