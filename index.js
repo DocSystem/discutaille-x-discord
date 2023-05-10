@@ -1,5 +1,5 @@
 const { Client, IntentsBitField, GatewayIntentBits, Events } = require('discord.js');
-const { WebSocket, RawData } = require('ws');
+const { WebSocket } = require('ws');
 const https = require("https");
 const ppgen = require("./ppgen");
 
@@ -117,7 +117,23 @@ websocket.on('message', async (s) => {
 
 client.on(Events.MessageCreate, (message) => {
     if (message.author.bot) return;
-    sendShout(message.content, message.author.username);
+    let msg = message.content;
+    if (message.attachments.size > 0) {
+        msg += "\n" + message.attachments.map((a) => a.url).join("\n");
+    }
+    // replace mentions
+    msg = msg.replace(/<@!?(\d+)>/g, (match, id) => {
+        const user = client.users.cache.get(id);
+        if (user) {
+            return "@" + user.username;
+        }
+        return match;
+    });
+    // replace emojis
+    msg = msg.replace(/<a?:\w+:(\d+)>/g, match => {
+        return match.split(":")[1];
+    });
+    sendShout(msg, message.author.username);
 });
 
 client.once(Events.ClientReady, () => {
