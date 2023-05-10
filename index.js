@@ -119,7 +119,10 @@ client.on(Events.MessageCreate, (message) => {
     if (message.author.bot) return;
     let msg = message.content;
     if (message.attachments.size > 0) {
-        msg += "\n" + message.attachments.map((a) => a.url).join("\n");
+        if (msg.length > 0) {
+            msg += "\n";
+        }
+        msg += message.attachments.map((a) => a.url).join("\n");
     }
     // replace mentions
     msg = msg.replace(/<@!?(\d+)>/g, (match, id) => {
