@@ -93,7 +93,7 @@ websocket.on('message', async (s) => {
                 await wh.send({
                     content: data.message.trim(),
                     username: pseudo,
-                    avatarURL: process.env.SERVERNAME + "/avatar/" + encodeURIComponent(pseudo)
+                    avatarURL: process.env.SERVERNAME + "/avatar?pseudo=" + encodeURIComponent(pseudo)
                 });
             }
             else {
@@ -103,7 +103,7 @@ websocket.on('message', async (s) => {
                         await wh.send({
                             content: message,
                             username: pseudo,
-                            avatarURL: process.env.SERVERNAME + "/avatar/" + encodeURIComponent(pseudo)
+                            avatarURL: process.env.SERVERNAME + "/avatar?pseudo=" + encodeURIComponent(pseudo)
                         });
                     }
                 }

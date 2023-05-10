@@ -37,8 +37,8 @@ function generateAvatar(pseudo) {
     return changeImageTint(image, filter);
 }
 
-app.get("/avatar/:pseudo", (req, res) => {
-    const pseudo = req.params.pseudo;
+app.get("/avatar", (req, res) => {
+    const pseudo = req.query.pseudo;
     const avatar = generateAvatar(pseudo);
     res.writeHead(200, {
         'Content-Type': 'image/png',
