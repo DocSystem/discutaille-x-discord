@@ -15,13 +15,82 @@ intents.add(GatewayIntentBits.Guilds);
 
 const client = new Client({ intents: intents });
 
-const websocket = new WebSocket('wss://discutaille.center/shout');
+let websocket = new WebSocket('wss://discutaille.center/shout');
 let currentPseudo = null;
 let sentMessages = [];
 
 websocket.on('open', () => {
     console.log('Connected to Discutaille websocket');
 });
+
+function wsCloseHandler() {
+    console.log('Disconnected from Discutaille websocket');
+    setTimeout(() => {
+        // try to reconnect
+        try {
+            websocket = new WebSocket('wss://discutaille.center/shout');
+            websocket.on('open', () => {
+                console.log('Connected to Discutaille websocket');
+            });
+            websocket.on('close', wsCloseHandler);
+            websocket.on('message', wsMessageHandler);
+        } catch (e) {
+            console.error(e);
+            console.log('Retrying in 5 seconds...');
+            wsCloseHandler();
+        }
+    }, 5000);
+}
+
+async function wsMessageHandler(s)  {
+    const data = decodeWsJson(s);
+    if (data.type === "message") {
+        if (sentMessages.find((m) => m.pseudo === data.pseudo && m.message === data.message)) {
+            sentMessages = sentMessages.filter((m) => m.pseudo !== data.pseudo && m.message !== data.message);
+            return;
+        }
+        const pseudo = data.pseudo;
+        const channel = await client.channels.cache.get('1105501399074230377');
+        const webhooks = await channel.fetchWebhooks();
+        let wh = webhooks.find((w) => w.name === "Discutaille");
+        // create webhook if not exists
+        if (!wh) {
+            const channel = await client.channels.cache.get('1105501399074230377');
+            wh = await channel.createWebhook({
+                name: "Discutaille",
+                avatar: 'https://discutaille.center/assets/skul.png'
+            });
+        }
+        if (data.message.trim().length > 0) {
+            if (data.message.length < 2000) {
+                await wh.send({
+                    content: data.message.trim(),
+                    username: pseudo,
+                    avatarURL: process.env.SERVERNAME + "/avatar?pseudo=" + encodeURIComponent(pseudo)
+                });
+            }
+            else {
+                const messages = data.message.trim().match(/.{1,2000}/g);
+                for (const message of messages) {
+                    if (message.length > 0) {
+                        await wh.send({
+                            content: message,
+                            username: pseudo,
+                            avatarURL: process.env.SERVERNAME + "/avatar?pseudo=" + encodeURIComponent(pseudo)
+                        });
+                    }
+                }
+            }
+        }
+    }
+    else if (data.type === "splashupdate") {
+        client.user.setActivity(data.splash);
+    }
+}
+
+websocket.on('close', wsCloseHandler);
+
+websocket.on('message', wsMessageHandler);
 
 async function getSplashText() {
     return new Promise((resolve, reject) => {
@@ -68,52 +137,6 @@ function sendShout(message, pseudo) {
     });
     sentMessages.push({pseudo: pseudo, message: message});
 }
-
-websocket.on('message', async (s) => {
-    const data = decodeWsJson(s);
-    if (data.type === "message") {
-        if (sentMessages.find((m) => m.pseudo === data.pseudo && m.message === data.message)) {
-            sentMessages = sentMessages.filter((m) => m.pseudo !== data.pseudo && m.message !== data.message);
-            return;
-        }
-        const pseudo = data.pseudo;
-        const channel = await client.channels.cache.get('1105501399074230377');
-        const webhooks = await channel.fetchWebhooks();
-        let wh = webhooks.find((w) => w.name === "Discutaille");
-        // create webhook if not exists
-        if (!wh) {
-            const channel = await client.channels.cache.get('1105501399074230377');
-            wh = await channel.createWebhook({
-                name: "Discutaille",
-                avatar: 'https://discutaille.center/assets/skul.png'
-            });
-        }
-        if (data.message.trim().length > 0) {
-            if (data.message.length < 2000) {
-                await wh.send({
-                    content: data.message.trim(),
-                    username: pseudo,
-                    avatarURL: process.env.SERVERNAME + "/avatar?pseudo=" + encodeURIComponent(pseudo)
-                });
-            }
-            else {
-                const messages = data.message.trim().match(/.{1,2000}/g);
-                for (const message of messages) {
-                    if (message.length > 0) {
-                        await wh.send({
-                            content: message,
-                            username: pseudo,
-                            avatarURL: process.env.SERVERNAME + "/avatar?pseudo=" + encodeURIComponent(pseudo)
-                        });
-                    }
-                }
-            }
-        }
-    }
-    else if (data.type === "splashupdate") {
-        client.user.setActivity(data.splash);
-    }
-})
 
 client.on(Events.MessageCreate, (message) => {
     if (message.author.bot) return;
